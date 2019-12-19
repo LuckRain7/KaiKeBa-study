@@ -1,0 +1,20 @@
+{
+  "name": "KaiKeBa-study",
+  "version": "1.0.0",
+  "description": "开课吧Web全栈架构师学习代码",
+  "main": "index.js",
+  "scripts": {
+    "git": "git push gitee master && git push github master"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuckRain7/KaiKeBa-study.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LuckRain7/KaiKeBa-study/issues"
+  },
+  "homepage": "https://github.com/LuckRain7/KaiKeBa-study#readme"
+}
