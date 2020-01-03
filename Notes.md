@@ -56,3 +56,61 @@ import HelloWorld from "./components/Cart";
   }
   ```
 
+- 需要思考的问题
+
+  1、input是自定义组件，它是怎么实现双向绑定？
+
+  2、FormItem是怎么知道执行校验的，它是怎么知道input状态的？它是怎么获取对应数据模型的？
+
+  3、Form是怎么进行全局校验的？它用什么办法把数据模型和校验规则传递给内部组件？
+
+  - 数据校验包 `async-validator`
+
+    ```js
+    import Schema from 'async-validator'
+    
+    validator() {
+      // 进行校验
+      const rules = this.KForm.rules[this.prop]
+      const value = this.KForm.model[this.prop]
+      const descriptor = { [this.prop]: rules }
+      const schema = new Schema(descriptor)
+      schema.validate({ [this.prop]: value }, errors => {
+        if (errors) {
+          this.errMessage = errors[0].message
+          this.errStatus = true
+        } else {
+          this.errMessage = ''
+          this.errStatus = false
+        }
+      })
+    }
+    ```
+
+  > 设计思想：
+  >
+  > - from 绑定数据模型 添加校验规则
+  >   - formitem label prop 校验和显示错误
+  >     - input
+
+-  [provide / inject](https://cn.vuejs.org/v2/api/#provide-inject) *****
+
+   主要为高阶插件/组件库提供用例。并不推荐直接用于应用程序代码中 
+
+  ```js
+  // 父级组件
+    provide() {
+      return {
+        someval:'来自app.vue'
+      };
+    },
+  
+  // 子组件注入 someval
+    inject: ["someval"]
+  ```
+
+  
+
+
+
+  

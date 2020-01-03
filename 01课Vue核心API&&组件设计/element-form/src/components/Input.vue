@@ -1,6 +1,7 @@
 <template>
   <div>
-    <input type="text" :value="value" @input="onInput" />
+    {{someval}}
+    <input :type="type" :value="value" @input="onInput" />
   </div>
 </template>
 
@@ -9,11 +10,22 @@ export default {
   data() {
     return {};
   },
-  props: ["value"],
+  inject: ["someval"],
+  props: {
+    value: {
+      type: String,
+      default: ""
+    },
+    type: {
+      type: String,
+      default: "text"
+    }
+  },
   methods: {
     onInput(e) {
-        let value = e.target.value
-        this.$emit('input',value)
+      let value = e.target.value;
+      this.$emit("input", value);
+      this.$parent.$emit('validate')
     }
   }
 };

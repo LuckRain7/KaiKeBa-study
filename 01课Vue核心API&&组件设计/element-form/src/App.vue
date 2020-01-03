@@ -1,8 +1,16 @@
 <template>
   <div id="app">
     <div>
-      <r-input :value="value" @input="value = arguments[0]"></r-input>
+      <r-form :model="model" :rules="rules">
+        <r-form-item label="用户名" prop="username">
+          <r-input v-model="model.username"></r-input>
+        </r-form-item>
+        <r-form-item label="密码" prop="password">
+          <r-input v-model="model.password" type="password"></r-input>
+        </r-form-item>
+      </r-form>
     </div>
+    <div></div>
     <div>
       <h3>Element表单</h3>
       <hr />
@@ -29,7 +37,15 @@
 
 <script>
 import RInput from "./components/Input";
+import RFormItem from "./components/FormItem";
+import RForm from "./components/Form";
 export default {
+  name: "app",
+  provide() {
+    return {
+      someval:'来自app.vue'
+    };
+  },
   data() {
     return {
       value: "",
@@ -47,7 +63,9 @@ export default {
     submitForm() {}
   },
   components: {
-    RInput
+    RInput,
+    RFormItem,
+    RForm
   }
 };
 </script>
