@@ -109,8 +109,82 @@ import HelloWorld from "./components/Cart";
     inject: ["someval"]
   ```
 
+- `slot`插槽
+
+- 路由传参 `/page/123` 可是使用 `props:['id']`拿 `this.id === 123`
+
+- [命名视图]( https://router.vuejs.org/zh/guide/essentials/named-views.html )（使用name进行区分）
+
+  有时候想同时 (同级) 展示多个视图，而不是嵌套展示，例如创建一个布局，有 `sidebar` (侧导航) 和 `main` (主内容) 两个视图，这个时候命名视图就派上用场了。你可以在界面中拥有多个单独命名的视图，而不是只有一个单独的出口。如果 `router-view` 没有设置名字，那么默认为 `default`。
+
+  ```html
+  <router-view class="view one"></router-view>
+  <router-view class="view two" name="a"></router-view>
+  <router-view class="view three" name="b"></router-view>
+  ```
+
+  一个视图使用一个组件渲染，因此对于同个路由，多个视图就需要多个组件。确保正确使用 `components` 配置 (带上 s)：
+
+  ```js
+  const router = new VueRouter({
+    routes: [
+      {
+        path: '/',
+        components: {
+          default: Foo,
+          a: Bar,
+          b: Baz
+        }
+      }
+    ]
+  })
+  ```
+
+- 组件内的守卫
+
+  ```js
+  export default {
+      beforeRouteEnter (to, from, next) {
+          // 在渲染该组件的对应路由被 confirm 前调用
+          // 不！能！ 获取组件实例 this
+          // 因为当守卫执行前，组件实例还没有被创建
+      },
+      beforeRouteUpdate(to, from, next){
+          // 在当前路由改变，但该组件被复用时调用
+          // 举例来说，对于一个带有动态参数的路径 /foo/:id 在 /foo/1 和 /foo/2 之间跳转的时候
+          // 由于会渲染同样的FOO组件，因此组件实例会被复用，而这个钩子会在这个情况下被调用。
+          // 可以访问组件实例 this
+      },
+      beforeRouteLeave (to, from, next) {
+          // 导航离开该组件的对应路由时调用
+          // 可以访问组件实例 this
+          // 通常用来禁止用户在还未保存修改前突然离开。该导航可以用过next（false）来取消
+      }
+  }
+  ```
+
+- `vuex mapActions`
+
+	将两者进行映射 简化代码
+
+ 你在组件中使用 `this.$store.dispatch('xxx')` 分发 action，或者使用 `mapActions` 辅助函数将组件的 methods 映射为 `store.dispatch` 调用（需要先在根节点注入 `store`）： 
   
-
-
-
+  ```js
+  import { mapActions } from 'vuex'
   
+export default {
+    // ...
+    methods: {
+      ...mapActions([
+        'increment', // 将 `this.increment()` 映射为 `this.$store.dispatch('increment')`
+  
+        // `mapActions` 也支持载荷：
+      'incrementBy' // 将 `this.incrementBy(amount)` 映射为 `this.$store.dispatch('incrementBy', amount)`
+	    ]),
+	    ...mapActions({
+	      add: 'increment' // 将 `this.add()` 映射为 `this.$store.dispatch('increment')`
+	    })
+	  }
+	}
+	```
+
