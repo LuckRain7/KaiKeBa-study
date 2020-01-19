@@ -168,9 +168,9 @@ import HelloWorld from "./components/Cart";
 	将两者进行映射 简化代码
 
  你在组件中使用 `this.$store.dispatch('xxx')` 分发 action，或者使用 `mapActions` 辅助函数将组件的 methods 映射为 `store.dispatch` 调用（需要先在根节点注入 `store`）： 
-  
+
   ```js
-  import { mapActions } from 'vuex'
+import { mapActions } from 'vuex'
   
 export default {
     // ...
@@ -186,5 +186,13 @@ export default {
 	    })
 	  }
 	}
-	```
+  ```
+
+## 03_Vue源码解析
+
+![vue](F:\Rain\KaiKeBa-study\img\vue.png)
+
+简化：
+
+![vue-simple](F:\Rain\KaiKeBa-study\img\vue-simple.png)
 
