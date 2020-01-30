@@ -295,3 +295,17 @@ app.use(router.routes());
 app.listen(3000);
 ```
 
+- bearer token
+
+  > Authorization: Bearer <token>
+
+- jwt
+
+  > head.payload.hash
+  >
+  > head:type,alr
+  >
+  > payload：josn
+  >
+  > hash
+
