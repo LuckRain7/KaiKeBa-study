@@ -1,23 +1,26 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {CompType1,CompType2} from './components/CompType'
+import Clock from './components/Clock'
+import StateTest from './components/StateTest'
+import CartSample from './components/CartSample';
+
 
 function App() {
+  const name = 'tom'
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Edit <code>src/App.js</code> and save to reload.{name}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+      <CompType1 name="CompType1"></CompType1>
+      <CompType2 name="CompType1"></CompType2>
+      <Clock ></Clock>
+      <StateTest></StateTest>
+      <CartSample></CartSample>
       </header>
     </div>
   );
