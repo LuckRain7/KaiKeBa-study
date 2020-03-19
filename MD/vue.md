@@ -194,11 +194,11 @@ export default {
 
 ## Vue源码解析
 
-![vue](.\img\vue.png)
+![vue](./img/vue.png)
 
 简化：
 
-![vue-simple](.\img\vue-simple.png)
+![vue-simple](./img/vue-simple.png)
 
 ## Vue项目实战
 

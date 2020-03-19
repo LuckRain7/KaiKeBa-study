@@ -245,7 +245,7 @@ export default CartSample
 
 可以通过此图更直观了解流程，具体生命周期看官网
 
-![shewn](../img/reaact生命周期.png)
+![shewn](./img/reaact生命周期.png)
 
 此处版本：16.12
 
@@ -563,7 +563,7 @@ module.exports = override(
 
 高阶组件装饰器写法：
 
-```jsx
+```js
 // 高阶组件装饰器写法
 import React, { Component } from 'react'
 
