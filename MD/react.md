@@ -1,5 +1,11 @@
 # React
 
+目录：
+
+[TOC]
+
+
+
 ## install
 
 ` npm install -g create-react-app  `
@@ -418,7 +424,7 @@ function Comment({data}){
 
   React v16.6.0 之后的版本，可以使用 React.memo 让函数式的组件也有PureComponent的功能  
 
-```js
+```jsx
 // memo高阶组件
 const Comment = React.memo(function(props) {
   console.log("render Comment"); //打印两次
@@ -548,7 +554,7 @@ export default Hoc
 
 config-overrides.js配置：
 
-```js
+```jsx
 const { override, fixBabelImports,addDecoratorsLegacy } = require('customize-cra')
 
 module.exports = override(
@@ -563,7 +569,7 @@ module.exports = override(
 
 高阶组件装饰器写法：
 
-```js
+```jsx
 // 高阶组件装饰器写法
 import React, { Component } from 'react'
 
@@ -723,4 +729,181 @@ export default function() {
 ```
 
 ## Hook
+
+### 状态钩子 - State Hook  
+
+`const [state, setState] = useState(initialState)`
+
+接收初始状态，返回一个状态变量和其更新函数  
+
+```jsx
+
+import React, { useState } from 'react'
+import { Button } from 'antd'
+
+function HookTest(props) {
+  // din
+  const [count, setCount] = useState(0)
+
+  // 多个状态
+  const [age] = useState(20)
+  const [fruit, setFruit] = useState('banana')
+  const [input, setInput] = useState('')
+  const [fruits, setFruits] = useState(['apple', 'banana'])
+
+  return (
+    <div>
+      <p>点击了{count}次</p>
+      <Button onClick={() => setCount(count + 1)}>点击</Button>
+      <hr />
+      <p>年龄{age}</p>
+      <p>水果{fruit}</p>
+      <p>
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)}/>
+          <Button onClick={() => setFruits([...fruits,input])}>添加</Button>
+      </p>
+      <ul>
+        {fruits.map(f => (
+          <li key={f} onClick={()=>setFruit(f)}>{f}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+export default HookTest
+
+```
+
+### 副作用钩子  \- Effect Hook  
+
+ *Effect Hook* 可以让你在函数组件中执行副作用操作 (可以建多个)
+
+副作用钩子会在每次渲染时都执行
+
+```jsx
+// 副作用钩子会在每次渲染时都执行
+useEffect(() => {
+document.title = `您点击了${count}`
+})
+```
+
+如果副作用钩子仅需要执行一次，传递第二个参数为空数组[]
+
+```js
+// 副作用钩子会在每次渲染时都执行
+useEffect(() => {
+console.log('api调用')
+}, [])
+```
+
+钩子可以设置依赖，依赖更新 钩子才进行调用。可以设置多个依赖
+
+```js
+//count更新了 钩子才执行  
+useEffect(() => {
+    document.title = `您点击了${count}`
+  }, [count])
+
+//设置多个依赖 
+useEffect(() => {
+    document.title = `您点击了${count}`
+  }, [count,a,b])
+```
+
+### 自定义钩子  \- Custom Hook  
+
+自定义hook是一个函数，名称用use开头，函数内部可以调用其他钩子
+
+```jsx
+ //定义
+function useAge() {
+    const [age, setAge] = useState(0)
+    useEffect(() => {
+      setTimeout(() => {
+        setAge(30)
+      }, 2000)
+    })
+    return age
+  }
+
+  //使用
+  const age = useAge()
+  <p>年龄{age ? age : 'loading...'}</p>
+```
+
+### 其余钩子 TODO
+
+- [基础 Hook](https://react.docschina.org/docs/hooks-reference.html#basic-hooks)
+  - [`useState`](https://react.docschina.org/docs/hooks-reference.html#usestate)
+  - [`useEffect`](https://react.docschina.org/docs/hooks-reference.html#useeffect)
+  - [`useContext`](https://react.docschina.org/docs/hooks-reference.html#usecontext)
+- [额外的 Hook](https://react.docschina.org/docs/hooks-reference.html#additional-hooks)
+  - [`useReducer`](https://react.docschina.org/docs/hooks-reference.html#usereducer)
+  - [`useCallback`](https://react.docschina.org/docs/hooks-reference.html#usecallback)
+  - [`useMemo`](https://react.docschina.org/docs/hooks-reference.html#usememo)
+  - [`useRef`](https://react.docschina.org/docs/hooks-reference.html#useref)
+  - [`useImperativeHandle`](https://react.docschina.org/docs/hooks-reference.html#useimperativehandle)
+  - [`useLayoutEffect`](https://react.docschina.org/docs/hooks-reference.html#uselayouteffect)
+  - [`useDebugValue`](https://react.docschina.org/docs/hooks-reference.html#usedebugvalue)
+
+##   组件跨层级通信  
+
+[Context相关API]( https://react.docschina.org/docs/context.html )
+
+- [React.createContext](https://react.docschina.org/docs/context.html#reactcreatecontext)
+- [Context.Provider](https://react.docschina.org/docs/context.html#contextprovider)
+- [Class.contextType](https://react.docschina.org/docs/context.html#classcontexttype)
+- [Context.Consumer](https://react.docschina.org/docs/context.html#contextconsumer)
+- [Context.displayName](https://react.docschina.org/docs/context.html#contextdisplayname)
+
+
+### 基本用法
+
+创建上下文
+
+```js
+const MyContext = React.createContext()
+```
+
+提供上下文
+
+```jsx
+const { Provider } = MyContext
+function Child(props) {
+  return <div>child</div>
+}
+
+function ContxtTest(props) {
+  return (
+    <div>
+      <Provider value={{ foo: 'bar' }}>
+        <Child {...value}></Child>
+      </Provider>
+    </div>
+  )
+}
+```
+
+
+
+消费上下文
+
+```jsx
+const { Provider, Consumer } = MyContext
+
+function Child(props) {
+  return <div>child:{props.foo}</div>
+}
+
+function ContxtTest(props) {
+  return (
+    <div>
+      <Provider value={{ foo: 'bar' }}>
+        <Consumer>{value => <Child {...value} />}</Consumer>
+      </Provider>
+    </div>
+  )
+}
+```
 
