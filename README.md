@@ -418,10 +418,25 @@ export default StateTest
 
 ```
 
-### 条件渲染 & 列表渲染
+### 条件渲染 & 列表渲染 & 事件 & 组件间数据传递
+
+点击事件传值 默认传递的事event 所以要用箭头函数进行传值
+
+`<button onClick={_ => this.addToCart(good)}>加购</button>`或
+
+`<button onClick={_ => this.addToCart(good,_)}>加购</button>`或
+
+`<button onClick={() => this.addToCart(good,_)}>加购</button>`
+
+组件间传值 可以传递数据 也可以传递方法
+
+` <Cart data={this.state.cart} add={this.add} minus={this.minus}></Cart>`
+
+ps: react提倡不要直接修改数据
 
 ```jsx
 import React, { Component } from 'react'
+import Cart from './Cart'
 
 class CartSample extends Component {
   constructor(props) {
@@ -430,9 +445,81 @@ class CartSample extends Component {
       good: [
         { id: 1, text: 'aaaaaa' },
         { id: 2, text: 'bbbbbbbb' }
-      ]
+      ],
+      text: '',
+      cart: []
     }
+    this.addGood = this.addGood.bind(this) //添加商品
+
+    //Cart组件
+    this.addToCart = this.addToCart.bind(this) //添加至购物车
+    this.minus = this.minus.bind(this) //购物车-
+    this.add = this.add.bind(this) //购物车+
   }
+
+  textChange = e => {
+    this.setState({
+      text: e.target.value
+    })
+  }
+
+  // 添加商品 (推荐在上面this绑定)
+  addGood() {
+    this.setState(prevState => {
+      return {
+        good: [
+          ...prevState.good,
+          {
+            id: prevState.good.length + 1,
+            text: prevState.text
+          }
+        ]
+      }
+    })
+  }
+
+  addToCart(good) {
+    const newCart = [...this.state.cart]
+    const idx = newCart.findIndex(c => c.id === good.id)
+    const item = newCart[idx]
+    if (item) {
+      newCart.splice(idx, 1, { ...item, count: item.count + 1 })
+    } else {
+      newCart.push({ ...good, count: 1 })
+      console.log(newCart)
+    }
+
+    this.setState({
+      cart: newCart
+    })
+  }
+
+  minus(id) {
+    const newCart = [...this.state.cart]
+    const idx = newCart.findIndex(c => c.id === id)
+    const item = newCart[idx]
+    if (item.count === 1) {
+      newCart.splice(idx, 1)
+    } else {
+      newCart.splice(idx, 1, { ...item, count: item.count - 1 })
+    }
+
+    this.setState({
+      cart: newCart
+    })
+  }
+
+  add(id) {
+    const newCart = [...this.state.cart]
+    const idx = newCart.findIndex(c => c.id === id)
+    const item = newCart[idx]
+    newCart.splice(idx, 1, { ...item, count: item.count + 1 })
+
+    this.setState({
+      cart: newCart
+    })
+  }
+
   render() {
     // const title = this.props.title ? <h1>this.props.title</h1> : null
 
@@ -442,11 +529,26 @@ class CartSample extends Component {
         {this.props.title && <h1>this.props.title</h1>}
 
         {/* 列表渲染 */}
+        <div>
+          <input
+            type="text"
+            value={this.state.text}
+            onChange={this.textChange}
+          />
+          <button onClick={this.addGood}>添加</button>
+        </div>
         <ul>
           {this.state.good.map(good => (
-            <li key="good.id">{good.text}</li>
+            <li key={good.id}>
+              {good.text}
+
+              <button onClick={_ => this.addToCart(good)}>加购</button>
+            </li>
           ))}
         </ul>
+
+        {/* 购物车 */}
+        <Cart data={this.state.cart} add={this.add} minus={this.minus}></Cart>
       </div>
     )
   }
@@ -456,3 +558,57 @@ export default CartSample
 
 ```
 
+### 生命周期
+
+可以通过此图更直观了解流程，具体生命周期看官网
+
+![shewn](./img/reaact生命周期.png)
+
+此处版本：16.12
+
+#### 挂载
+
+当组件实例被创建并插入 DOM 中时，其生命周期调用顺序如下：
+
+- [`constructor()`](https://react.docschina.org/docs/react-component.html#constructor)
+- [`static getDerivedStateFromProps()`](https://react.docschina.org/docs/react-component.html#static-getderivedstatefromprops)
+- [`render()`](https://react.docschina.org/docs/react-component.html#render)
+- [`componentDidMount()`](https://react.docschina.org/docs/react-component.html#componentdidmount)
+
+> 注意:
+>
+> 下述生命周期方法即将过时，在新代码中应该[避免使用它们](https://react.docschina.org/blog/2018/03/27/update-on-async-rendering.html)：
+>
+> - [`UNSAFE_componentWillMount()`](https://react.docschina.org/docs/react-component.html#unsafe_componentwillmount)
+
+#### 更新
+
+当组件的 props 或 state 发生变化时会触发更新。组件更新的生命周期调用顺序如下：
+
+- [`static getDerivedStateFromProps()`](https://react.docschina.org/docs/react-component.html#static-getderivedstatefromprops)
+- [`shouldComponentUpdate()`](https://react.docschina.org/docs/react-component.html#shouldcomponentupdate)
+- [**`render()`**](https://react.docschina.org/docs/react-component.html#render)
+- [`getSnapshotBeforeUpdate()`](https://react.docschina.org/docs/react-component.html#getsnapshotbeforeupdate)
+- [**`componentDidUpdate()`**](https://react.docschina.org/docs/react-component.html#componentdidupdate)
+
+> 注意:
+>
+> 下述方法即将过时，在新代码中应该[避免使用它们](https://react.docschina.org/blog/2018/03/27/update-on-async-rendering.html)：
+>
+> - [`UNSAFE_componentWillUpdate()`](https://react.docschina.org/docs/react-component.html#unsafe_componentwillupdate)
+> - [`UNSAFE_componentWillReceiveProps()`](https://react.docschina.org/docs/react-component.html#unsafe_componentwillreceiveprops)
+
+#### 卸载
+
+当组件从 DOM 中移除时会调用如下方法：
+
+- [**`componentWillUnmount()`**](https://react.docschina.org/docs/react-component.html#componentwillunmount)
+
+#### 错误处理
+
+当渲染过程，生命周期，或子组件的构造函数中抛出错误时，会调用如下方法：
+
+- [`static getDerivedStateFromError()`](https://react.docschina.org/docs/react-component.html#static-getderivedstatefromerror)
+- [`componentDidCatch()`](https://react.docschina.org/docs/react-component.html#componentdidcatch)
+
+### 
