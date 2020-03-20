@@ -8,11 +8,17 @@ import HookTest from './components/HookTest'
 import ContextTest from './components/ContextTest'
 import AntdForm from './components/AntdForm'
 import MyForm from './components/MyForm'
+import ReduxTest from './components/redux-study/ReduxTest'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
+      -----自己制作form表单组件:------
+        <br />
+        <ReduxTest></ReduxTest>
+        <div className="hr"></div>
+
       -----自己制作form表单组件:------
         <br />
         <MyForm></MyForm>

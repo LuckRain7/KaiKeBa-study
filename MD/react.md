@@ -1085,3 +1085,136 @@ export default RainForm
 
 ```
 
+## Redux
+
+### 安装
+
+```bash
+yarn add redux react-redux
+```
+
+### 基础使用
+
+ 引入更新视图   src/index.js  
+
+```js
+import React from 'react'
+import ReactDOM from 'react-dom'
+import './index.css'
+import App from './App'
+import * as serviceWorker from './serviceWorker'
+import store from './store'
+// 引入 Provider 提供更新
+import { Provider } from 'react-redux'
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+)
+```
+
+创建store  src\store\index.js
+
+```js
+import { createStore } from 'redux'
+
+const counterReducer = (state = 0, action) => {
+  switch (action.type) {
+    case 'add':
+      return state + 1
+    case 'minus':
+      return state - 1
+    default:
+      return state
+  }
+}
+const store = createStore(counterReducer)
+
+export default store
+
+```
+
+使用  src\components\redux-study\ReduxTest.jsx （两种不同写法）
+
+```jsx
+import React from 'react'
+
+import { connect } from 'react-redux'
+
+const mapStateToProps = state => ({ num: state })
+const mapDispatchToProps = {
+  add: () => ({ type: 'add' }),
+  minus: () => ({ type: 'minus' })
+}
+
+// 1、普通写法
+
+function ReduxTest({ num, add, minus }) {
+  return (
+    <div>
+      <p>{num}</p>
+      <button onClick={add}>+</button>
+      <button onClick={minus}>-</button>
+    </div>
+  )
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ReduxTest)
+
+// 2、装饰器写法
+
+@connect(mapStateToProps, mapDispatchToProps)
+class ReduxTest extends Component {
+  render() {
+    const { num, add, minus } = this.props
+    return (
+      <div>
+        <p>{num}</p>
+        <button onClick={add}>+</button>
+        <button onClick={minus}>-</button>
+      </div>
+    )
+  }
+}
+
+export default ReduxTest
+
+
+```
+
+### redux异步 redux-thunk
+
+redux只支持同步，实现异步任务需要中间件支持  
+
+#### 安装
+
+```bash
+yarn add redux-thunk redux-logger 
+```
+
+配置
+
+```js
+// + applyMiddleware 引入中间件函数
+import { createStore,applyMiddleware } from 'redux' 
+import logger from 'redux-logger'
+import thunk from 'redux-thunk' // 引入redux-thunk
+
+const counterReducer = (state = 0, action) => {
+  switch (action.type) {
+    case 'add':
+      return state + 1
+    case 'minus':
+      return state - 1
+    default:
+      return state
+  }
+}
+// +applyMiddleware(logger,thunk) thunk经过中间件处理
+const store = createStore(counterReducer,applyMiddleware(logger,thunk))
+
+export default store
+```
+

@@ -10,3 +10,7 @@
 .hr{
   height: 300px;
 }
+
+body,html{
+  font-size: 17px;
+}
