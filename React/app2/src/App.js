@@ -11,11 +11,16 @@ import MyForm from './components/MyForm'
 import RouterExample from './components/RouterExample'
 import RouterExampleRedux from './components/RouterExampleRedux'
 import ReduxTest from './components/redux-study/ReduxTest'
+import RouterExampleReduxSaga from './components/redux-study/RouterExampleReduxSaga'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
+        -----redux-saga:------
+        <br />
+        <RouterExampleReduxSaga></RouterExampleReduxSaga>
+        <div className="hr"></div>
         -----路由插件 +redux:------
         <br />
         <RouterExampleRedux></RouterExampleRedux>

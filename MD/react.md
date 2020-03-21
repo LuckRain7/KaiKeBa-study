@@ -1274,6 +1274,127 @@ const mapStateToProps = state => ({ num: state.counter })//state.模块名使用
 const mapDispatchToProps = { add, minus, asyncAdd } //引入action中的方法
 ```
 
+### Redux-Saga
+
+redux-sage使副作用（数据获取、浏览器缓存获取）易于管理、执行、测试和失败处理
+
+#### 安装
+
+```bash
+yarn add redux-saga
+```
+
+#### 使用
+
+创建 src\store\sages.js
+
+```js
+// call 调用异步函数
+// put 通知状态更新
+// takeEvery 负责监听action
+import { call, put, takeEvery } from 'redux-saga/effects'
+
+// 模拟登录
+const UserService = {
+  login(uname) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (uname === 'Jerry') {
+          resolve({ id: 1, name: 'Jerry', age: 20 })
+        } else {
+          reject('用户名或密码错误')
+        }
+      }, 1000)
+    })
+  }
+}
+
+// worker Saga
+function* login(action) {
+  try {
+    yield put({ type: 'requestLogin' })
+    const result = yield call(UserService.login, action.uname)
+    yield put({ type: 'loginSuccess', result })
+  } catch (message) {
+    yield put({ type: 'loginFailure', message })
+  }
+}
+
+function* mySaga() {
+  yield takeEvery('login', login)
+}
+
+export default mySaga
+```
+
+创建 src\store\user.redux.saga.js
+
+```js
+export const userReducer = (
+  state = { isLogin: false, loading: false, error: '' },
+  action
+) => {
+  switch (action.type) {
+    case 'requestLogin':
+      return { isLogin: false, loading: true, error: '' }
+    case 'loginSuccess':
+      return { isLogin: true, loading: false, error: '' }
+    case 'loginFailure':
+      return { isLogin: false, loading: false, error: action.message }
+    default:
+      return state
+  }
+}
+export function asyncLogin(uname) {
+  return { type: 'login', uname }
+}
+// export function login() {
+//   return dispatch => {
+//     dispatch({ type: "requestLogin" });
+//     setTimeout(() => {
+//       dispatch({ type: "login" });
+//     }, 2000);
+//   };
+// }
+
+```
+
+修改 src\store\index.js
+
+```js
+import { createStore, applyMiddleware, combineReducers } from 'redux'
+import logger from 'redux-logger'
+import { counterReducer } from './count.redux.js'
+import { userReducer } from './user.redux.saga.js'
+
+// 1、引入saga
+import createSagaMiddleware from 'redux-saga'
+import mySaga from './sagas'
+
+// 2、创建saga中间件并注册
+const sagaMiddleware = createSagaMiddleware()
+const store = createStore(
+  combineReducers({ counter: counterReducer, user: userReducer }),
+  applyMiddleware(logger, sagaMiddleware)
+)
+// 3、中间件运行saga
+sagaMiddleware.run(mySaga)
+
+export default store
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## react-router
 
 ### 安装
