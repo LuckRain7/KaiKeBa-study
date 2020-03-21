@@ -1218,3 +1218,351 @@ const store = createStore(counterReducer,applyMiddleware(logger,thunk))
 export default store
 ```
 
+####   抽离reducer和action  
+
+单独创建 count.redux.js 存储相关 reducer 和 action  ,集中管理
+
+```js
+// counter
+
+// state
+export const counterReducer = (state = 0, action) => {
+  switch (action.type) {
+    case 'add':
+      return state + 1
+    case 'minus':
+      return state - 1
+    default:
+      return state
+  }
+}
+
+// action
+export const add = () => ({ type: 'add' })
+export const minus = () => ({ type: 'minus' })
+export const asyncAdd = () => dispatch => {
+  // 做异步操作
+  setTimeout(() => {
+    dispatch({ type: 'add' })
+  }, 2000)
+}
+```
+
+index.js中进行导入 并重命名 形成模块
+
+```js
+import { createStore, applyMiddleware, combineReducers } from 'redux'
+import logger from 'redux-logger'
+import thunk from 'redux-thunk'
+//导入 counterReducer
+import {counterReducer} from './count.redux.js' 
+
+const store = createStore(
+  combineReducers({ counter: counterReducer }), //重命名 counter 模块
+  applyMiddleware(logger, thunk)
+)
+
+export default store
+```
+
+在组件中使用
+
+```js
+import { add, minus, asyncAdd } from '../../store/count.redux.js'
+
+const mapStateToProps = state => ({ num: state.counter })//state.模块名使用
+const mapDispatchToProps = { add, minus, asyncAdd } //引入action中的方法
+```
+
+## react-router
+
+### 安装
+
+```shell
+yarn add react-router-dom
+```
+
+### 简单应用
+
+需要`<BrowserRouter></BrowserRouter>`和`<Switch></Switch>`包裹
+
+路由跳转：`<Link to="/detail/web">Web架构师</Link>`
+
+路由视图：定义路径path、显示组件component、exact完全配路径显示
+
+` <Route exact path="/about/me" component={() => <div>me</div>}></Route>`
+
+重定向：`<Redirect to="/about/me"></Redirect>`
+
+```jsx
+import React from 'react'
+import { BrowserRouter, Link, Route, Switch, Redirect } from 'react-router-dom'
+import { Button } from 'antd'
+
+function Home(params) {
+  return (
+    <div>
+      <h3>课程列表</h3>
+      <ul>
+        <li>
+          <Link to="/detail/web">Web架构师</Link>
+        </li>
+        <li>
+          <Link to="/detail/python">Python架构师</Link>
+        </li>
+      </ul>
+    </div>
+  )
+}
+// 当前用户信息
+function About(params) {
+  return (
+    <div>
+      <h3>个人信息</h3>
+      <div>
+        <Link to="/about/me">个人信息</Link>||||
+        <Link to="/about/order">订单信息</Link>
+      </div>
+      {/* Switch只显示一个 */}
+      <Switch>
+        <Route path="/about/me" component={() => <div>me</div>}></Route>
+        <Route path="/about/order" component={() => <div>order</div>}></Route>
+        <Redirect to="/about/me"></Redirect>
+      </Switch>
+    </div>
+  )
+}
+function NoMatch({ location }) {
+  return <div>404,地址{location.pathname}不存在</div>
+}
+
+// 传递进来路由器对象
+function Detail(props) {
+  // 1\history 导航指令
+  // 2\match 获取参数信息
+  // 2\location 当前url信息
+  console.log(props)
+
+  return (
+    <div>
+      当前课程是：{props.match.params.course}
+      <button onClick={props.history.goBack}>后退</button>
+    </div>
+  )
+}
+
+// 路由守卫
+// 希望用法：<PrivaterRoute path="/about" component={}></PrivaterRoute>
+function PrivaterRoute({ component: Comp, isLogin, ...rest }) {
+  // 做认证
+  // render 根据条件动态渲染组件
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        isLogin ? (
+          <Comp></Comp>
+        ) : (
+          <Redirect
+            to={{ pathname: '/login', state: props.location.pathname }}
+          />
+        )
+      }
+    ></Route>
+  )
+}
+
+// 登录组件
+function Login({ location, isLogin, Login }) {
+  const redirect = location.state.redirect | '/'
+
+  if (isLogin) {
+    return <Redirect to={redirect}></Redirect>
+  }
+  return (
+    <div>
+      <p>用户登录</p>
+      <hr />
+      <Button onClick={Login}>登录</Button>
+    </div>
+  )
+}
+
+function RouterExample(props) {
+  return (
+    <div>
+      <BrowserRouter>
+        <div>
+          {/* 导航链接 */}
+          <ul>
+            <li>
+              <Link to="/">首页</Link>
+            </li>
+            <li>
+              <Link to="/about">关于</Link>
+            </li>
+          </ul>
+          <Switch>
+            {/* 路由配置：路由及组件 */}
+            <Route exact path="/" component={Home}></Route>
+            <Route path="/detail/:course" component={Detail}></Route>
+            <PrivaterRoute path="/about" component={About} />
+            <Route path="/login" component={Login}></Route>
+            {/* 404:没有path 必然匹配 */}
+            <Route exact component={NoMatch}></Route>
+          </Switch>
+        </div>
+      </BrowserRouter>
+    </div>
+  )
+}
+
+export default RouterExample
+
+```
+
+### 结合redux使用
+
+```jsx
+import React from 'react'
+import { BrowserRouter, Link, Route, Switch, Redirect } from 'react-router-dom'
+import { Button } from 'antd'
+import { connect } from 'react-redux'
+import { asyncLogin } from '../store/user.redux.js'
+
+function Home(params) {
+  return (
+    <div>
+      <h3>课程列表</h3>
+      <ul>
+        <li>
+          <Link to="/detail/web">Web架构师</Link>
+        </li>
+        <li>
+          <Link to="/detail/python">Python架构师</Link>
+        </li>
+      </ul>
+    </div>
+  )
+}
+// 当前用户信息
+function About(params) {
+  return (
+    <div>
+      <h3>个人信息</h3>
+      <div>
+        <Link to="/about/me">个人信息</Link>||||
+        <Link to="/about/order">订单信息</Link>
+      </div>
+      {/* Switch只显示一个 */}
+      <Switch>
+        <Route path="/about/me" component={() => <div>me</div>}></Route>
+        <Route path="/about/order" component={() => <div>order</div>}></Route>
+        <Redirect to="/about/me"></Redirect>
+      </Switch>
+    </div>
+  )
+}
+function NoMatch({ location }) {
+  return <div>404,地址{location.pathname}不存在</div>
+}
+
+// 传递进来路由器对象
+function Detail(props) {
+  // 1\history 导航指令
+  // 2\match 获取参数信息
+  // 2\location 当前url信息
+  console.log(props)
+
+  return (
+    <div>
+      当前课程是：{props.match.params.course}
+      <button onClick={props.history.goBack}>后退</button>
+    </div>
+  )
+}
+
+// 路由守卫
+// 希望用法：<PrivaterRoute path="/about" component={}></PrivaterRoute>
+// redux第一个更改
+const PrivaterRoute = connect(state => ({ isLogin: state.user.isLogin }))(
+  ({ component: Comp, isLogin, ...rest }) => {
+    // 做认证
+    // render 根据条件动态渲染组件
+    return (
+      <Route
+        {...rest}
+        render={props =>
+          isLogin ? (
+            <Comp></Comp>
+          ) : (
+            <Redirect
+              to={{
+                pathname: '/login',
+                state: { redirect: props.location.pathname }
+              }}
+            />
+          )
+        }
+      ></Route>
+    )
+  }
+)
+
+// 登录组件
+const Login = connect(
+  state => ({
+    isLogin: state.user.isLogin,
+    loading: state.user.loading
+  }),
+  { asyncLogin }
+)(function Login({ location, isLogin, asyncLogin, loading }) {
+  const redirect = location.state.redirect || '/'
+
+  if (isLogin) {
+    return <Redirect to={redirect} />
+  }
+  return (
+    <div>
+      <p>用户登录</p>
+      <hr />
+      <Button onClick={asyncLogin} disabled={loading}>
+        {loading ? '登录中...' : '登录'}
+      </Button>
+    </div>
+  )
+})
+
+function RouterExample(props) {
+  return (
+    <div>
+      <BrowserRouter>
+        <div>
+          {/* 导航链接 */}
+          <ul>
+            <li>
+              <Link to="/">首页</Link>
+            </li>
+            <li>
+              <Link to="/about">关于</Link>
+            </li>
+          </ul>
+          <Switch>
+            {/* 路由配置：路由及组件 */}
+            <Route exact path="/" component={Home}></Route>
+            <Route path="/detail/:course" component={Detail}></Route>
+            <PrivaterRoute path="/about" component={About} />
+            <Route path="/login" component={Login}></Route>
+            {/* 404:没有path 必然匹配 */}
+            <Route exact component={NoMatch}></Route>
+          </Switch>
+        </div>
+      </BrowserRouter>
+    </div>
+  )
+}
+
+export default RouterExample
+
+```
+

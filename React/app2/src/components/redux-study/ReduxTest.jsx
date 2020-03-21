@@ -9,17 +9,10 @@ import React, { Component } from 'react'
 
 import { connect } from 'react-redux'
 
-const mapStateToProps = state => ({ num: state })
-const mapDispatchToProps = {
-  add: () => ({ type: 'add' }),
-  minus: () => ({ type: 'minus' }),
-  asyncAdd: () => dispatch => {
-    // 做异步操作
-    setTimeout(() => {
-      dispatch({ type: 'add' })
-    }, 2000)
-  }
-}
+import { add, minus, asyncAdd } from '../../store/count.redux.js'
+
+const mapStateToProps = state => ({ num: state.counter })
+const mapDispatchToProps = { add, minus, asyncAdd }
 
 // 普通写法
 

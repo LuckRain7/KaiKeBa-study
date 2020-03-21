@@ -8,18 +8,27 @@ import HookTest from './components/HookTest'
 import ContextTest from './components/ContextTest'
 import AntdForm from './components/AntdForm'
 import MyForm from './components/MyForm'
+import RouterExample from './components/RouterExample'
+import RouterExampleRedux from './components/RouterExampleRedux'
 import ReduxTest from './components/redux-study/ReduxTest'
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-      -----自己制作form表单组件:------
+        -----路由插件 +redux:------
+        <br />
+        <RouterExampleRedux></RouterExampleRedux>
+        <div className="hr"></div>
+        -----路由插件 react-router-dom:------
+        <br />
+        <RouterExample></RouterExample>
+        <div className="hr"></div>
+        -----自己制作form表单组件:------
         <br />
         <ReduxTest></ReduxTest>
         <div className="hr"></div>
-
-      -----自己制作form表单组件:------
+        -----自己制作form表单组件:------
         <br />
         <MyForm></MyForm>
         <div className="hr"></div>
