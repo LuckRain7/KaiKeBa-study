@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/LuckRain7/KaiKeBa-study/issues"
   },
-  "homepage": "https://github.com/LuckRain7/KaiKeBa-study#readme"
+  "homepage": "https://github.com/LuckRain7/KaiKeBa-study#readme",
+  "dependencies": {
+    "umi": "^3.0.0-beta.38"
+  }
 }
