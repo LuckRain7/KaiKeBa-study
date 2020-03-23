@@ -172,7 +172,7 @@ import React from 'react';
 import { Redirect } from 'umi';
 
 export default (props: any) => {
-  const isLogin: boolean = Math.random > 0.5 ? true : false;
+  const isLogin: boolean = Math.random() > 0.5 ? true : false;
   if (isLogin) {
     return <div>{props.children}</div>;
   } else {
@@ -181,13 +181,227 @@ export default (props: any) => {
 };
 ```
 
+## 3、引入Antd
+
+### 安装
+
+```bash
+yarn add antd
+yarn add @umijs/preset-react -D
+```
+
+### 使用
+
+```tsx
+import React from 'react';
+import { Link } from 'umi';
+import { Button } from 'antd';
+
+export default () => {
+  return (
+    <div>
+      <h1>Page index hello world</h1>
+
+      <Button>
+        <Link to="admin">admin</Link>
+      </Button>
+    </div>
+  );
+};
+```
 
 
 
+## 4、引入Dav
 
-## 3、一些问题
+umi内置dav 直接使用即可
 
-### 约定路由不自动添加问题
+### 使用
+
+创建文件夹  src/models
+
+新建文件 src/models/goods.ts
+
+这个 model 里：
+
+- `namespace` 表示在全局 state 上的 key
+- `state` 是初始值，在这里是空数组
+- `reducers` 等同于 redux 里的 reducer，接收 action，同步更新 state
+
+```js
+export default {
+    // model的命名空间，区分多个model
+    namespace: 'goods',
+    // 初始状态
+    state: [{ title: 'javascript' }, { title: 'Golang' }],
+    // 异步操作
+    effects: {},
+    // 更新状态
+    reducers: {
+        addGood(state, action) {
+            return [...state, { title: action.title }]
+        }
+    },
+};
+```
+
+在组件中使用 src\pages\goods.jsx
+
+```jsx
+import React from 'react';
+import { connect } from 'dva';
+import { Button, Card } from 'antd';
+
+export default connect(
+  state => ({
+    goodsList: state.goods, //获取指定命名空间的模型状态
+  }),
+  {
+    // action的type需要以命名空间为前缀+reducer名称
+    addGood: title => ({
+      type: 'goods/addGood',
+      title,
+    }),
+  },
+)(function({ goodsList, addGood }) {
+  return (
+    <div>
+      <h1>Page goods</h1>
+      {/* 商品列表 */}
+      <div>
+        {goodsList.map(good => {
+          return (
+            <Card key={good.title}>
+              <div>{good.title}</div>
+            </Card>
+          );
+        })}
+        <div>
+          <Button onClick={() => addGood('商品' + new Date().getTime())}>
+            添加商品
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+});
+```
+
+### 异步使用
+
+创建mock数据 mock\goods.js
+
+```js
+const data = [{ title: 'web全栈' }, { title: 'java架构师' }];
+
+export default {
+  // "method url": Object 或 Array
+  //   "get /api/goods": { result: data },
+
+  // "method url": (req, res) => {}
+  'get /api/goods': function(req, res) {
+    setTimeout(() => {
+      res.json({ result: data });
+    }, 1250);
+  },
+};
+```
+
+在dva中加入异步 src\models\good.ts
+
+```ts
++ import axios from 'axios'
+
++ function getGoods() {
++    return axios.get('/api/goods')
++}
+
+
+export default {
+    // model的命名空间，区分多个model
+    namespace: 'goods',
+    // 初始状态
+    // state: [{ title: 'javascript' }, { title: 'Golang' }],
+    state: [],
+    // 异步操作
+    effects: {
++        *getList(actions, { call, put }) {
++            const res = yield call(getGoods)
++            yield put({ type: 'initGoods', payload: res.data.result })
++        }
+    },
+    // 更新状态
+    reducers: {
+        addGood(state, action) {
+            return [...state, { title: action.title }]
+        },
++        initGoods(state, action) {
++            return action.payload
++        }
+
+    },
+};
+
+```
+
+在组件中使用  src\pages\goods.jsx
+
+使用hook useEffect接受异步
+
+```jsx
+import React from 'react';
+import { connect } from 'dva';
+import { Button, Card } from 'antd';
++ import { useEffect } from 'react';
+
+export default connect(
+  state => ({
++    loading: state.loading, //dva 可以通过loading空间获取加载状态
+    goodsList: state.goods, //获取指定命名空间的模型状态
+  }),
+  {
+    // action的type需要以命名空间为前缀+reducer名称
+    addGood: title => ({
+      type: 'goods/addGood',
+      title,
+    }),
++    getList: () => ({
++      type: 'goods/getList',
++    }),
+  },
++)(function({ goodsList, addGood, getList, loading }) {
++  useEffect(() => {
++    getList();
++  }, []);
+  return (
+    <div>
+      <h1>Page goods</h1>
+      {/* 商品列表 */}
+      <div>
+        {/* 加载状态 */}
++        {loading.models.goods && <p>loading...</p>}
+        {goodsList.map(good => {
+          return (
+            <Card key={good.title}>
+              <div>{good.title}</div>
+            </Card>
+          );
+        })}
+        <div>
+          <Button onClick={() => addGood('商品' + new Date().getTime())}>
+            添加商品
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+```
+
+## 5、一些问题
+
+### （1）约定路由不自动添加问题
 
 根目录下的.umirc.ts进行修改
 

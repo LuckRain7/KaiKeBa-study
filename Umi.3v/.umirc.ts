@@ -10,6 +10,7 @@ export default defineConfig({
             ], component: "@/pages/admin"
         },
         { path: "/login", component: "@/pages/login" },
+        { path: "/goods", component: "@/pages/goods.jsx" },
         {
             path: "/user",
             component: "@/pages/user/_layout",
